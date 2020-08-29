@@ -2,168 +2,184 @@
 	icon = 'icons/mob/inveterata.dmi'
 	max_integrity = 100
 
-/obj/structure/inveterata/run_obj_armor(damage_amount, damage_type, damage_flag = 0, attack_dir)
-	if(damage_flag == "melee")
-		switch(damage_type)
-			if(BRUTE)
-				damage_amount *= 0.25
-			if(BURN)
-				damage_amount *= 0.25
-	. = ..()
-
-/obj/structure/inveterata/play_attack_sound(damage_amount, damage_type = BRUTE, damage_flag = 0)
-	switch(damage_type)
-		if(BRUTE)
-			if(damage_amount)
-				playsound(loc, 'sound/effects/attackblob.ogg', 100, TRUE)
-			else
-				playsound(src, 'sound/weapons/tap.ogg', 50, TRUE)
-		if(BURN)
-			if(damage_amount)
-				playsound(loc, 'sound/items/welder.ogg', 100, TRUE)
-
-/*
- * mycelium
- */
-
-#define NODERANGE 6
-
 /obj/structure/inveterata/mycelium
 	gender = PLURAL
 	name = "mycelium"
-	desc = "A thick mycelium covers the floor."
+	desc = "A dense growth of mycelium covering the floor."
 	anchored = TRUE
 	density = FALSE
 	layer = TURF_LAYER
 	plane = FLOOR_PLANE
-	icon_state = "no name"
-	max_integrity = 15
-	level = 1
-	var/obj/structure/inveterata/mycelium/node/linked_node = null
+	icon_state = "mycelium"
+	max_integrity = 30
+	var/obj/structure/inveterata/mycelium/nucleus/linked_nucleus= null
+	var/issurrounded = FALSE
 
-/obj/structure/inveterata/mycelium/New(loc, node)
+/obj/structure/inveterata/mycelium/New(pos, nucleus)
 	..()
-	var/turf/T = get_turf(src)   //code to hide under floor tiles if they exist
-	if(level == 1)
-		hide(T.intact)
-
-	linked_node = node
-
-	if(istype(loc, /turf/space))
-		qdel(src)
-		return
-
-	fullUpdateMyceliumOverlays()
-	Life()
+	if(!istype(src, /obj/structure/inveterata/mycelium/nucleus))
+		linked_nucleus = nucleus
+	var/turf/currentturf = get_turf(src)
+	if(icon_state == "mycelium")
+		pick(icon_state = "mycelium", icon_state = "mycelium_alt")      //so sprites are not repetative
+	if(linked_nucleus)
+		linked_nucleus.addmyc(src)
+	else qdel(src)							//mycelium needs a nucleus or die
+	greaterUpdateMyceliumOverlays()
 
 /obj/structure/inveterata/mycelium/Destroy()
-	fullUpdateMyceliumOverlays()
-	linked_node = null
+	linked_nucleus.submyc(src)
+
+	for(var/obj/structure/inveterata/mycelium/target in range(1,src))
+		target.updateMyceliumOverlays()
+		target.issurrounded = FALSE
+
+	if(linked_nucleus.isstagnant == TRUE)
+		linked_nucleus.restartSpread()
 	return ..()
 
-/obj/structure/inveterata/mycelium/proc/Life()
-	var/turf/U = get_turf(src)
-
-	if(istype(U, /turf/space))   //mycelium cant spread onto space
-		fullUpdateMyceliumOverlays()
+/obj/structure/inveterata/mycelium/proc/life()
+	var/turf/currentturf = get_turf(src)
+	if(linked_nucleus == null || linked_nucleus == 0 || istype(currentturf,  /turf/space))
 		qdel(src)
-		return
 
-	if(!linked_node || linked_node == null)  //mycelium needs a node or else die
-		fullUpdateMyceliumOverlays()
-		addtimer(CALLBACK(src, .proc/qdel, src), 100)
-		return
-
-	for(var/turf/T in U.GetAtmosAdjacentTurfs())     //checks ajacent turfs if they can be spread to and tells their node
-		if(!locate(/obj/structure/inveterata/mycelium) in T && !istype(T, /turf/space))
-			if(get_dist(linked_node, T) <= linked_node.node_range)
-				linked_node.updateSpreadList(T)
-
-
-
-/obj/structure/inveterata/mycelium/hide()
-	if(level == 1 && istype(loc, /turf/simulated))
-		invisibility = INVISIBILITY_OBSERVER //ghosts gotta see the infestation too you know.
-	else
-		invisibility = 0
-
-#define NORTH_ADJOIN var/list(TRUE, FALSE, FALSE, FALSE)
-#define SOUTH_ADJOIN var/list(FALSE, TRUE, FALSE, FALSE)
-#define EAST_ADJOIN var/list(FALSE, FALSE, TRUE, FALSE)
-#define WEST_ADJOIN var/list(FALSE, FALSE, FALSE, TRUE)
-
-#define NORTH_EAST_ADJOIN var/list(TRUE, FALSE, TRUE, FALSE)
-#define NORTH_WEST_ADJOIN var/list(TRUE, FALSE, FALSE, TRUE)
-#define SOUTH_EAST_ADJOIN var/list(FALSE, TRUE, TRUE, FALSE)
-#define SOUTH_WEST_ADJOIN var/list(FALSE, TRUE, FALSE, TRUE)
-
-#define NORTH_EAST_WEST_ADJOIN var/list(TRUE, FALSE, TRUE, FALSE)
-#define SOUTH_EAST_WEST_ADJOIN var/list(TRUE, FALSE, FALSE, TRUE)
-#define EAST_NORTH_SOUTH_ADJOIN var/list(FALSE, TRUE, TRUE, FALSE)
-#define WEST_NORTH_SOUTH_ADJOIN var/list(FALSE, TRUE, FALSE, TRUE)
-
-#define ALLSIDES_ADJOIN var/list(FALSE, TRUE, FALSE, TRUE)
+/*
+/obj/structure/inveterata/mycelium/proc/spreadCheck()
+	var/turf/currentturf = get_turf(src)
+	var/invalid = 0
+	var/turf/N = get_step(currentturf, NORTH)
+	var/turf/S = get_step(currentturf, SOUTH)
+	var/turf/E = get_step(currentturf, EAST)
+	var/turf/W = get_step(currentturf, WEST)
+	var/list/spreaddirections = list(N, S, E, W)
+	if(!issurrounded)
+		for(var/turf/spreadtarget in spreaddirections)
+			if(!locate(/obj/structure/inveterata/mycelium) in spreadtarget)
+				if(!istype(spreadtarget, /turf/space))
+					if(spreadtarget in range(linked_nucleus.spread_range, currentturf))
+						linked_nucleus.updatecanidates(spreadtarget)
+			invalid++
+		if(invalid == 4)
+			issurrounded = TRUE
+			return FALSE
+*/
 
 /obj/structure/inveterata/mycelium/proc/updateMyceliumOverlays()
+
+	overlays.Cut()
 
 	var/turf/N = get_step(src, NORTH)
 	var/turf/S = get_step(src, SOUTH)
 	var/turf/E = get_step(src, EAST)
 	var/turf/W = get_step(src, WEST)
-	var/list/neighbors = new /list(FALSE, FALSE, FALSE, FALSE) //this will store values to be compared against to determine what sprite states to use.
 
-	overlays.Cut()
+	if(!locate(/obj/structure/inveterata) in N.contents)
+		if(istype(N, /turf/simulated/floor))
+			overlays += image('icons/mob/inveterata.dmi', "mycelium_north", layer=2.11, pixel_y = -32)
+	if(!locate(/obj/structure/inveterata) in S.contents)
+		if(istype(S, /turf/simulated/floor))
+			overlays += image('icons/mob/inveterata.dmi', "mycelium_south", layer=2.11, pixel_y = 32)
+	if(!locate(/obj/structure/inveterata) in E.contents)
+		if(istype(E, /turf/simulated/floor))
+			overlays += image('icons/mob/inveterata.dmi', "mycelium_east", layer=2.11, pixel_x = -32)
+	if(!locate(/obj/structure/inveterata) in W.contents)
+		if(istype(W, /turf/simulated/floor))
+			overlays += image('icons/mob/inveterata.dmi', "mycelium_west", layer=2.11, pixel_x = 32)
 
-	if(locate(/obj/structure/inveterata/mycelium) in N)
-		neighbors[1] = TRUE
-	if(locate(/obj/structure/inveterata/mycelium) in S)
-		neighbors[2] = TRUE
-	if(locate(/obj/structure/inveterata/mycelium) in E)
-		neighbors[3] = TRUE
-	if(locate(/obj/structure/inveterata/mycelium) in W)
-		neighbors[4] = TRUE
-
-	if(neighbors == )
-
-	overlays += pick(image('icons/mob/inveterata.dmi', "mycelium", layer=2.11), image('icons/mob/inveterata.dmi', "mycelium_alt", layer=2.11))
+/obj/structure/inveterata/mycelium/proc/greaterUpdateMyceliumOverlays()
+	for(var/obj/structure/inveterata/mycelium/target in range(1,src))
+		target.updateMyceliumOverlays()
 
 
-/obj/structure/inveterata/mycelium/proc/fullUpdateMyceliumOverlays()
-	for(var/obj/structure/inveterata/mycelium/W in range(1,src))
-		W.updateMyceliumOverlays()
+/obj/structure/inveterata/mycelium/nucleus
+	name = "Mycelium Nucleus"
+	desc = "The mycelium appears to be spreading from this."
+	icon_state =  "mycelium_nucleus"
+	var/list/mycelium_children = list()
+	var/list/mycelium_canidates = list()
+	var/isstagnant = FALSE
+	var/spread_range = 4
 
-//Mycelium nodes
+/obj/structure/inveterata/mycelium/nucleus/New()
+	linked_nucleus = src //locate(/obj/structure/inveterata/mycelium/nucleus) in get_turf(src)
+	..()
+	spread()
 
-/obj/structure/inveterata/mycelium/node
-	name = "mycelium node"
-	desc = "The mycelium seems to be spreading from this."
-	icon_state = "mycelium_node"
-	light_range = 1
-	var/node_range = NODERANGE
-	var/list/spread_buffer =  new /list(0)
-
-/obj/structure/inveterata/mycelium/node/proc/updateSpreadList(var/turf/target)
-	spread_buffer += target
-	addtimer(CALLBACK(src, .proc/spread), 100)
-
-/obj/structure/inveterata/mycelium/node/proc/spread()
-	if(spread_buffer.len)
-		for(var/turf/target in spread_buffer)
-			if(!locate(/obj/structure/inveterata/mycelium) in target)
-				new /obj/structure/inveterata/mycelium(target, linked_node)
-				spread_buffer -= target
-			else
-				spread_buffer -= target
-		for(var/obj/structure/inveterata/mycelium/imbuetarget in range(node_range, src))
-			imbuetarget.Life()
+/obj/structure/inveterata/mycelium/nucleus/Destroy()
+	isstagnant = TRUE
+	for(var/obj/structure/inveterata/mycelium/target in mycelium_children)
+		target.linked_nucleus = null
+		target.life()
+	return..()
 
 
 
-/obj/structure/inveterata/mycelium/node/New()
-	..(loc, src)
-
-/obj/structure/inveterata/mycelium/node/updateMyceliumOverlays()
+/obj/structure/inveterata/mycelium/nucleus/updateMyceliumOverlays()
 	return
 
+/obj/structure/inveterata/mycelium/nucleus/proc/addmyc(obj/input)
+	if(istype(input, /obj/structure/inveterata/mycelium))
+		mycelium_children += input
+		return TRUE
+	return FALSE
 
-#undef NODERANGE
+/obj/structure/inveterata/mycelium/nucleus/proc/submyc(obj/input)
+	if(istype(input, /obj/structure/inveterata/mycelium))
+		mycelium_children -= input
+		return TRUE
+	return FALSE
+
+/obj/structure/inveterata/mycelium/nucleus/proc/updatecanidates(loc)
+	if(loc in mycelium_canidates || locate(/obj/structure/inveterata) in loc)
+		return
+	mycelium_canidates += loc
+
+/obj/structure/inveterata/mycelium/nucleus/proc/spread()
+	if(isstagnant == TRUE)
+		return
+	/*for(var/obj/structure/inveterata/mycelium/target in mycelium_children)
+		target.spreadCheck()
+		target.updateMyceliumOverlays()
+		target.life()
+
+	if(mycelium_canidates.len == 0)
+		isstagnant = TRUE
+
+	for(var/turf/target in mycelium_canidates)
+		if(target in range(spread_range, src))
+			new /obj/structure/inveterata/mycelium(target, linked_nucleus)
+			var/list/deletetarget = list(mycelium_canidates.Find(target))
+			mycelium_canidates -= deletetarget */
+
+	for(var/turf/target in range(spread_range, src))
+		var/turf/N = get_step(target, NORTH)
+		var/turf/S = get_step(target, SOUTH)
+		var/turf/E = get_step(target, EAST)
+		var/turf/W = get_step(target, WEST)
+		var/list/spreadDirections = list(N, S, E, W)
+
+		for(var/obj/structure/inveterata/mycelium/sourcemyc in target.contents)
+			var/invalid = 0
+			var/myccount = 0
+			if(sourcemyc.linked_nucleus == src && !sourcemyc.issurrounded)
+				myccount++
+				if(myccount > 1)
+					message_admins("something terrible has happened")
+				for(var/turf/spreadtarget in spreadDirections)
+					if(!locate(/obj/structure/inveterata) in spreadtarget.contents)
+						addtimer(CALLBACK(src, .proc/createNewMycelium, spreadtarget), 10)
+					else invalid++
+				if(invalid == 4)
+					sourcemyc.issurrounded = TRUE
+			else if(sourcemyc.linked_nucleus == 0 || sourcemyc.linked_nucleus == null)
+				sourcemyc.linked_nucleus = src
+
+	addtimer(CALLBACK(src, .proc/spread), 100)
+
+
+/obj/structure/inveterata/mycelium/nucleus/proc/createNewMycelium(loc)
+	new /obj/structure/inveterata/mycelium(loc, linked_nucleus)
+
+/obj/structure/inveterata/mycelium/nucleus/proc/restartSpread()
+	isstagnant = FALSE
+	addtimer(CALLBACK(src, .proc/spread), 100)
