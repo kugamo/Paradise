@@ -209,10 +209,6 @@
 
 /obj/machinery/airlock_sensor/Initialize()
 	..()
-	set_frequency(frequency)
-
-/obj/machinery/airlock_sensor/New()
-	..()
 	if(SSradio)
 		set_frequency(frequency)
 
@@ -227,6 +223,7 @@
 
 /obj/machinery/airlock_sensor/airlock_exterior
 	command = "cycle_exterior"
+
 
 /obj/machinery/access_button
 	icon = 'icons/obj/airlock_machines.dmi'
@@ -281,14 +278,10 @@
 	radio_connection = SSradio.add_object(src, frequency, RADIO_AIRLOCK)
 
 /obj/machinery/access_button/Initialize()
-	..()
-	set_frequency(frequency)
-
-/obj/machinery/access_button/New()
-	..()
-
+	. = ..()
 	if(SSradio)
 		set_frequency(frequency)
+	new /obj/effect/decal/airlockmarker(src.loc)
 
 /obj/machinery/access_button/Destroy()
 	if(SSradio)

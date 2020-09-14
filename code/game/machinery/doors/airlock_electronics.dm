@@ -100,3 +100,13 @@
 			conf_access -= req
 			if(!conf_access.len)
 				conf_access = null
+
+/obj/item/airlockcontrol_electronics
+	name = "airlock control electronics"
+	icon = 'icons/obj/module.dmi'
+	icon_state = "doorcontrol_electronics"
+	w_class = WEIGHT_CLASS_SMALL
+	materials = list(MAT_METAL=50, MAT_GLASS=50)
+	origin_tech = "engineering=2;programming=1"
+	toolspeed = 1
+	usesound = 'sound/items/deconstruct.ogg'

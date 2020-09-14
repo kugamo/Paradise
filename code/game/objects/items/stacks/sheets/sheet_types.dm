@@ -82,6 +82,12 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 		new /datum/stack_recipe("multi-tile airlock assembly", /obj/structure/door_assembly/multi_tile, 8, time = 50, one_per_turf = 1, on_floor = 1),
 	)),
 	null,
+	new /datum/stack_recipe_list("airlock control assemblies", list(
+		new /datum/stack_recipe("airlock controller frame", /obj/item/mounted/frame/airlock_controller, 2),
+		new /datum/stack_recipe("airlock sensor frame", /obj/item/mounted/frame/airlock_sensor, 1),
+		new /datum/stack_recipe("access button frame", /obj/item/mounted/frame/access_button, 1),
+	)),
+	null,
 	new /datum/stack_recipe("mass driver button frame", /obj/item/mounted/frame/driver_button, 1, time = 50, one_per_turf = 0, on_floor = 1),
 	new /datum/stack_recipe("light switch frame", /obj/item/mounted/frame/light_switch, 1, time = 50, one_per_turf = 0, on_floor = 1),
 	null,
