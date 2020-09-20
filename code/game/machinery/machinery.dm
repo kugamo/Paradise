@@ -120,6 +120,7 @@ Class Procs:
 	var/list/settagwhitelist // (Init this list if needed) WHITELIST OF VARIABLES THAT THE set_tag HREF CAN MODIFY, DON'T PUT SHIT YOU DON'T NEED ON HERE, AND IF YOU'RE GONNA USE set_tag (format_tag() proc), ADD TO THIS LIST.
 	atom_say_verb = "beeps"
 	var/siemens_strength = 0.7 // how badly will it shock you?
+	var/list/pixelarea = list() //used for placement of on wall machines, to prevent overlapping.
 
 /obj/machinery/Initialize(mapload)
 	if(!armor)

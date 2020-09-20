@@ -35,6 +35,7 @@
 	icon_state = "access_button_frame"
 	materials = list(MAT_METAL = 1000)
 	mount_reqs = list("simfloor", "nospace")
+	buildon_types = list(/turf/simulated/wall)
 
 /obj/item/mounted/frame/airlock_sensor
 	name = "airlock sensor frame"
@@ -43,6 +44,7 @@
 	icon_state = "airlock_sensor_frame"
 	materials = list(MAT_METAL = 1000)
 	mount_reqs = list("simfloor", "nospace")
+	buildon_types = list(/turf/simulated/wall)
 
 /obj/item/mounted/frame/airlock_controller
 	name = "airlock control frame"
@@ -51,81 +53,112 @@
 	icon_state = "access_control_frame"
 	materials = list(MAT_METAL = 2000)
 	mount_reqs = list("simfloor", "nospace")
+	buildon_types = list(/turf/simulated/wall)
 
-/obj/item/mounted/frame/access_button/do_build(turf/on_wall, mob/user)
+/obj/item/mounted/frame/afterattack(var/atom/A, mob/user, proximity_flag, params)
+	var/found_type = 0
+	for(var/turf_type in src.buildon_types)
+		if(istype(A, turf_type))
+			found_type = 1
+			break
+
+	if(found_type)
+		if(try_build(A, user, proximity_flag))
+			return do_build(A, user, params)
+	else
+		..()
+
+/obj/item/mounted/frame/access_button/do_build(turf/on_wall, mob/user, params)
 	var/turf/currentturf = get_turf(src)
-	var/tileoffset = get_dir(user, on_wall)
-	var/Xoffset = 0
-	var/Yoffset = 0
-	qdel(src)
-	new /obj/machinery/access_button_custom(currentturf)
-	for(var/obj/machinery/access_button_custom/createdframe in (currentturf).contents)
-		if(tileoffset == NORTH)
-			Xoffset = 0
-			Yoffset = 32
-		else if(tileoffset == SOUTH)
-			Xoffset = 0
-			Yoffset = -32
-		else if(tileoffset == EAST)
-			Xoffset = 32
-			Yoffset = 0
-		else if(tileoffset == WEST)
-			Xoffset = -32
-			Yoffset = 0
-		createdframe.place(Xoffset, Yoffset)
+	var/list/clickparams = params2list(params)
+	var/Xoffset = text2num(clickparams["icon-x"]) - 16
+	var/Yoffset = text2num(clickparams["icon-y"]) - 16
+
+	var/obj/machinery/access_button_custom/createdframe = new /obj/machinery/access_button_custom(currentturf)
+	if(createdframe.checkplacement(on_wall, createdframe, Xoffset, Yoffset))
+		qdel(src)
 		createdframe.buildstage = ACCESS_BUTTON_FRAME
 		createdframe.wiresadded = FALSE
 		createdframe.update_icon()
 		return
+	else
+		qdel(createdframe)
+		to_chat(user, "<span class='notice'>The [name] cannot fit there!</span>")
 
-/obj/item/mounted/frame/airlock_sensor/do_build(turf/on_wall, mob/user)
+/obj/item/mounted/frame/airlock_sensor_custom/do_build(turf/on_wall, mob/user, params)
 	var/turf/currentturf = get_turf(src)
-	var/tileoffset = get_dir(user, on_wall)
-	var/Xoffset = 0
-	var/Yoffset = 0
-	qdel(src)
-	new /obj/machinery/airlock_sensor(currentturf)
-	for(var/obj/machinery/airlock_sensor/createdframe in (currentturf).contents)
-		if(tileoffset == NORTH)
-			Xoffset = 0
-			Yoffset = 32
-		else if(tileoffset == SOUTH)
-			Xoffset = 0
-			Yoffset = -32
-		else if(tileoffset == EAST)
-			Xoffset = 32
-			Yoffset = 0
-		else if(tileoffset == WEST)
-			Xoffset = -32
-			Yoffset = 0
-		createdframe.place(Xoffset, Yoffset)
+	var/list/clickparams = params2list(params)
+	var/Xoffset = text2num(clickparams["icon-x"]) - 16
+	var/Yoffset = text2num(clickparams["icon-y"]) - 16
+
+	var/obj/machinery/access_button_custom/createdframe = new /obj/machinery/airlock_sensor_custom(currentturf)
+	if(createdframe.checkplacement(on_wall, createdframe, Xoffset, Yoffset))
+		qdel(src)
 		createdframe.update_icon()
 		return
+	else
+		qdel(createdframe)
+		to_chat(user, "<span class='notice'>The [name] cannot fit there!</span>")
 
-/obj/item/mounted/frame/airlock_controller/do_build(turf/on_wall, mob/user)
+/obj/item/mounted/frame/airlock_controller/do_build(turf/on_wall, mob/user, params)
 	var/turf/currentturf = get_turf(src)
-	var/tileoffset = get_dir(user, on_wall)
-	var/Xoffset = 0
-	var/Yoffset = 0
-	qdel(src)
-	new /obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom(currentturf)
-	for(var/obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/createdframe in (currentturf).contents)
-		if(tileoffset == NORTH)
-			Xoffset = 0
-			Yoffset = 32
-		else if(tileoffset == SOUTH)
-			Xoffset = 0
-			Yoffset = -32
-		else if(tileoffset == EAST)
-			Xoffset = 32
-			Yoffset = 0
-		else if(tileoffset == WEST)
-			Xoffset = -32
-			Yoffset = 0
-		createdframe.place(Xoffset, Yoffset)
+	var/list/clickparams = params2list(params)
+	var/Xoffset = text2num(clickparams["icon-x"]) - 16
+	var/Yoffset = text2num(clickparams["icon-y"]) - 16
+
+	var/obj/machinery/access_button_custom/createdframe = new /obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom(currentturf)
+	if(createdframe.checkplacement(on_wall, createdframe, Xoffset, Yoffset))
+		qdel(src)
 		createdframe.buildstage = AIRLOCK_CONTROLLER_FRAME
 		createdframe.update_icon()
 		return
+	else
+		qdel(createdframe)
+		to_chat(user, "<span class='notice'>The [name] cannot fit there!</span>")
+
+//Placement checks
+/obj/machinery/proc/checkplacement(turf/checkedtile, var/obj/machinery/placedobject, Xoffset, Yoffset)
+	if(Xoffset > 16 - (placedobject.pixelarea[3]/2))		//checks if placement is too close to border of tile.
+		Xoffset = 16 - (placedobject.pixelarea[3]/2)		//#nooverhangs
+	else if(Xoffset < -16 + (placedobject.pixelarea[3]/2))
+		Xoffset = -16 + (placedobject.pixelarea[3]/2)
+	if(Yoffset > 16 - (placedobject.pixelarea[4]/2))
+		Yoffset = 16 - (placedobject.pixelarea[4]/2)
+	else if(Yoffset < -16 + (placedobject.pixelarea[4]/2))
+		Yoffset = -16 + (placedobject.pixelarea[4]/2)
+
+	var/tileoffset = get_dir(get_turf(placedobject), checkedtile)		//now that we know its ok to place, set the acutal offset values.
+	if(tileoffset == NORTH)
+		Yoffset += 32
+	else if(tileoffset == SOUTH)
+		Yoffset -= 32
+	else if(tileoffset == EAST)
+		Xoffset += 32
+	else if(tileoffset == WEST)
+		Xoffset -= 32
+
+	for(var/obj/machinery/machine in (get_turf(placedobject)).contents)
+		if(machine.pixelarea.len)
+			if(machine.pixelarea != placedobject.pixelarea)				//exclude itself from the check
+				message_admins("===[machine.name]===")
+				message_admins("X:[Xoffset]-->[machine.pixelarea[1] + machine.pixelarea[3]]=[machine.pixelarea[1] - machine.pixelarea[3]]")
+				message_admins("Y:[Yoffset]-->[machine.pixelarea[2] + machine.pixelarea[4]]=[machine.pixelarea[2] - machine.pixelarea[4]]")
+				if(Xoffset <= machine.pixelarea[1] + machine.pixelarea[3] && Xoffset >= machine.pixelarea[1] - machine.pixelarea[3])
+					if(Yoffset <= machine.pixelarea[2] + machine.pixelarea[4] && Yoffset >= machine.pixelarea[2] - machine.pixelarea[4])
+						message_admins("===X[machine.name]X===")
+						return FALSE
+				if(Yoffset <= machine.pixelarea[2] + machine.pixelarea[4] && Yoffset >= machine.pixelarea[2] - machine.pixelarea[4])
+					if(Xoffset <= machine.pixelarea[1] + machine.pixelarea[3] && Xoffset >= machine.pixelarea[1] - machine.pixelarea[3])
+						message_admins("===Y[machine.name]Y===")
+						return FALSE
+	message_admins("===SUCCESS:[Xoffset],[Yoffset]===")
+	placedobject.pixel_x = Xoffset
+	placedobject.pixel_y = Yoffset
+	placedobject.pixelarea[1] = Xoffset
+	placedobject.pixelarea[2] = Yoffset
+	return TRUE
+
+
 
 //CUSTOM ACCESS BUTTON
 /obj/machinery/access_button_custom
@@ -134,6 +167,7 @@
 	name = "access button"
 	anchored = 1
 	power_channel = ENVIRON
+	pixelarea = list(0, 0, 8, 6)
 	var/master_tag
 	var/frequency = AIRLOCK_FREQ
 	var/command = "cycle"
@@ -142,6 +176,7 @@
 	var/buildstage = ACCESS_BUTTON_READY
 	var/wiresadded = TRUE
 	var/on = 1
+
 
 /obj/machinery/access_button_custom/update_icon()
 	if(buildstage == ACCESS_BUTTON_READY)
@@ -194,6 +229,16 @@
 	wiresadded = FALSE
 	update_icon()
 
+/obj/machinery/access_button_custom/wrench_act(mob/living/user, obj/item/I)
+	if(buildstage != ACCESS_BUTTON_FRAME)
+		return
+	. = TRUE
+	if(!I.use_tool(src, user, 0 , volume = I.tool_volume))
+		return
+	qdel(src)
+	new /obj/item/mounted/frame/access_button(get_turf(user))
+	WRENCH_UNANCHOR_WALL_MESSAGE
+
 /obj/machinery/access_button_custom/multitool_act(mob/living/user, obj/item/I)
 	if(buildstage != ACCESS_BUTTON_READY)
 		return
@@ -236,12 +281,14 @@
 	. = ..()
 	if(SSradio)
 		set_frequency(frequency)
-	new /obj/effect/decal/airlockmarker(src.loc)
+	new /obj/effect/decal/airlockmarker(get_turf(src))
 
 /obj/machinery/access_button_custom/Destroy()
 	if(SSradio)
 		SSradio.remove_object(src, frequency)
 	radio_connection = null
+	for(var/obj/effect/decal/airlockmarker/target in (get_turf(src)).contents)
+		qdel(target)
 	return ..()
 
 /obj/machinery/access_button_custom/airlock_interior
@@ -252,15 +299,86 @@
 	frequency = 1379
 	command = "cycle_exterior"
 
-
-/obj/machinery/access_button_custom/proc/place(Xoffset, Yoffset)
-	pixel_x = Xoffset
-	pixel_y = Yoffset
-
 //CUSTOM AIRLOCK SENSOR
-/obj/machinery/airlock_sensor/proc/place(Xoffset, Yoffset)
-	pixel_x = Xoffset
-	pixel_y = Yoffset
+/obj/machinery/airlock_sensor_custom
+	icon = 'icons/obj/airlock_machines.dmi'
+	icon_state = "airlock_sensor_off"
+	name = "airlock sensor"
+	anchored = 1
+	resistance_flags = FIRE_PROOF
+	power_channel = ENVIRON
+	pixelarea = list(0, 0, 10, 6)
+
+	var/id_tag
+	var/master_tag
+	var/frequency = 1379
+	var/command = "cycle"
+
+	var/datum/radio_frequency/radio_connection
+
+	var/on = 1
+	var/alert = 0
+	var/previousPressure
+
+/obj/machinery/airlock_sensor_custom/update_icon()
+	if(on)
+		if(alert)
+			icon_state = "airlock_sensor_alert"
+		else
+			icon_state = "airlock_sensor_standby"
+	else
+		icon_state = "airlock_sensor_off"
+
+/obj/machinery/airlock_sensor_custom/attack_hand(mob/user)
+	var/datum/signal/signal = new
+	signal.transmission_method = 1 //radio signal
+	signal.data["tag"] = master_tag
+	signal.data["command"] = command
+
+	radio_connection.post_signal(src, signal, range = AIRLOCK_CONTROL_RANGE, filter = RADIO_AIRLOCK)
+	flick("airlock_sensor_cycle", src)
+
+/obj/machinery/airlock_sensor_custom/process()
+	if(on)
+		var/datum/gas_mixture/air_sample = return_air()
+		var/pressure = round(air_sample.return_pressure(),0.1)
+
+		if(abs(pressure - previousPressure) > 0.001 || previousPressure == null)
+			var/datum/signal/signal = new
+			signal.transmission_method = 1 //radio signal
+			signal.data["tag"] = id_tag
+			signal.data["timestamp"] = world.time
+			signal.data["pressure"] = num2text(pressure)
+
+			radio_connection.post_signal(src, signal, range = AIRLOCK_CONTROL_RANGE, filter = RADIO_AIRLOCK)
+
+			previousPressure = pressure
+
+			alert = (pressure < ONE_ATMOSPHERE*0.8)
+
+			update_icon()
+
+/obj/machinery/airlock_sensor_custom/proc/set_frequency(new_frequency)
+	SSradio.remove_object(src, frequency)
+	frequency = new_frequency
+	radio_connection = SSradio.add_object(src, frequency, RADIO_AIRLOCK)
+
+/obj/machinery/airlock_sensor_custom/Initialize()
+	..()
+	if(SSradio)
+		set_frequency(frequency)
+
+/obj/machinery/airlock_sensor_custom/Destroy()
+	if(SSradio)
+		SSradio.remove_object(src, frequency)
+	radio_connection = null
+	return ..()
+
+/obj/machinery/airlock_sensor_custom/airlock_interior
+	command = "cycle_interior"
+
+/obj/machinery/airlock_sensor_custom/airlock_exterior
+	command = "cycle_exterior"
 
 
 //CUSTOM AIRLOCK CONTROLLER
@@ -274,6 +392,7 @@
 	var/aidisabled = FALSE
 	var/locked = TRUE
 	var/electrified = FALSE
+	pixelarea = list(0,0,12,10)
 
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/Initialize(mapload, given_id_tag, given_frequency, given_tag_exterior_door, given_tag_interior_door, given_tag_airpump, given_tag_chamber_sensor)
 	. = ..()
@@ -324,10 +443,6 @@
 
 	if(wiresexposed)
 		wires.Interact(user)
-
-/obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/proc/place(Xoffset, Yoffset)
-	pixel_x = Xoffset
-	pixel_y = Yoffset
 
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/CanUseTopic(var/mob/user, var/datum/topic_state/state, var/href_list = list())
 	if(buildstage != 2 || wiresexposed)
