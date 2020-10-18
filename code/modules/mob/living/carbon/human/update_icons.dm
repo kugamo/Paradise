@@ -573,6 +573,12 @@ GLOBAL_LIST_EMPTY(damage_icon_parts)
 					standing.overlays += image("icon" = 'icons/mob/ties.dmi', "icon_state" = "[tie_color]")
 		standing.alpha = w_uniform.alpha
 		standing.color = w_uniform.color
+
+		var/obj/item/clothing/under/plasmaman/custom/P
+		if(istype(w_uniform, /obj/item/clothing/under/plasmaman/custom))
+			P = w_uniform
+			standing = P.mutable_appearance_override
+
 		overlays_standing[UNIFORM_LAYER] = standing
 	else
 		// Automatically drop anything in store / id / belt if you're not wearing a uniform.	//CHECK IF NECESARRY
