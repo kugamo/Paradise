@@ -25,6 +25,19 @@
 	var/shows_wire_information = FALSE // shows what a wire does if set to TRUE
 	var/obj/machinery/buffer // simple machine buffer for device linkage
 
+/obj/item/multitool/examine()
+	. = ..()
+	if(buffer)
+		. += "<span class='notice'>[buffer] is currently in the buffer.</span>"
+		. += "<span class='info'>Alt Click to clear the buffer</span>"
+
+/obj/item/multitool/AltClick(mob/user)
+	. = ..()
+	if(!buffer)
+		to_chat(user, "<span class='warning'>There is nothing in the [name] buffer.</span>")
+	reset_multitool_buffer()
+	to_chat(user, "<span class='notice'>You clear the [name] buffer.</span>")
+
 /obj/item/multitool/proc/IsBufferA(var/typepath)
 	if(!buffer)
 		return 0
@@ -39,7 +52,19 @@
 		return
 	buffer = M
 	to_chat(user, "<span class='notice'>You load [M] into [src]'s internal buffer.</span>")
+	update_icon()
 	return TRUE
+
+/obj/item/multitool/proc/reset_multitool_buffer()
+	buffer = null
+	update_icon()
+
+/obj/item/multitool/update_icon()
+	..()
+	if(!buffer)
+		icon_state = "[initial(icon_state)]"
+	else
+		icon_state = "[initial(icon_state)]_blue"
 
 // Syndicate device disguised as a multitool; it will turn red when an AI camera is nearby.
 

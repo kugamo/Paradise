@@ -274,13 +274,13 @@ Class Procs:
 			update_mt_menu = TRUE
 
 		if("buffer" in href_list)
-			P.buffer = src
+			P.set_multitool_buffer(user, src)
 			to_chat(usr, "<span class='notice'>A green light flashes, and the device appears in the multitool buffer.</span>")
 			update_mt_menu = TRUE
 
 		if("flush" in href_list)
 			to_chat(usr, "<span class='notice'>A green light flashes, and the device disappears from the multitool buffer.</span>")
-			P.buffer = null
+			P.reset_multitool_buffer()
 			update_mt_menu = TRUE
 
 		var/ret = multitool_topic(usr,href_list,P.buffer)

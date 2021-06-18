@@ -57,6 +57,11 @@
 
 	// In the far future no checks are made in an overriding Topic() beyond if(..()) return
 	// Instead any such checks are made in CanUseTopic()
+	message_admins("CanUseTopic(usr, state, href_list)")
+	message_admins("usr:[usr], state:[state], href_list:[href_list], length(href_list): [length(href_list)]")
+	for(var/thingamagic in href_list)
+		message_admins(" entries in href_list:[thingamagic]")
+	message_admins("[CanUseTopic(usr, state, href_list)]")
 	if(CanUseTopic(usr, state, href_list) == STATUS_INTERACTIVE)
 		CouldUseTopic(usr)
 		return FALSE

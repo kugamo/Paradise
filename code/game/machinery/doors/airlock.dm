@@ -992,6 +992,10 @@ About the new airlock wires panel:
 	. = TRUE
 	if(!I.use_tool(src, user, 0, volume = I.tool_volume))
 		return
+	if(!id_tag)
+		id_tag = "[UID()]"
+	var/obj/item/multitool/M = I
+	M.set_multitool_buffer(user, src)
 	interact_with_panel(user)
 
 /obj/machinery/door/airlock/welder_act(mob/user, obj/item/I) //This is god awful but I don't care

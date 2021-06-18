@@ -1,4 +1,5 @@
 /datum/admins/Topic(href, href_list)
+	message_admins("admins topic called")
 	..()
 
 	if(usr.client != src.owner || !check_rights(0))

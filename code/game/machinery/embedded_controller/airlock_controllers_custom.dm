@@ -171,10 +171,13 @@
 	var/master_tag
 	var/frequency = AIRLOCK_FREQ
 	var/command = "cycle"
-	var/orientation = null
+
 	var/datum/radio_frequency/radio_connection
+
+	var/orientation = null
 	var/buildstage = ACCESS_BUTTON_READY
 	var/wiresadded = TRUE
+
 	var/on = 1
 
 
@@ -386,7 +389,9 @@
 	name = "Airlock Controller"
 	tag_secure = 1
 	req_access = list(ACCESS_ENGINE_EQUIP)
+	Mtoollink = TRUE
 	var/datum/wires/airlockcontroller/wires = null
+
 	var/buildstage = AIRLOCK_CONTROLLER_READY
 	var/wiresexposed = FALSE
 	var/aidisabled = FALSE
@@ -500,15 +505,28 @@
 
 	return 1
 
-/obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/multitool_menu(mob/user, obj/item/multitool/P)
+/obj/embedded_controller/radio/airlock/airlock_controller_custom/interact(mob/user as mob)
+	update_multitool_menu(user)
+
+/obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/multitool_menu(var/mob/user, var/obj/item/multitool/P)
 	var/dat= {"
 	<ul>
-	<b>Bingus</b>
+		<li><b>Interior Airlock</b> <a href="?src=[UID()];bigpoopootime=1">\[Add from buffer\]</a></li>
 	</ul>"}
 	return dat
 
+/obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/multitool_topic(mob/user, list/href_list, obj/O)
+	if("bigpoopootime" in href_list)
+		message_admins("IT FUCKING WORKS, LETSSS GOOOo")
+		return TRUE
+	return ..()
+
 /obj/machinery/embedded_controller/radio/airlock/airlock_controller_custom/attackby(obj/item/I, mob/user, params)
 	add_fingerprint(user)
+
+	if(istype(I, /obj/item/multitool) && buildstage == 3)
+		update_multitool_menu(user)
+		return 1
 
 	switch(buildstage)
 		if(2)

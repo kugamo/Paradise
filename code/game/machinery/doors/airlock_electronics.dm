@@ -102,7 +102,8 @@
 				conf_access = null
 
 /obj/item/airlockcontrol_electronics
-	name = "airlock control electronics"
+	name = "airlock controller electronics"
+	desc = "A circuitboard for airlock controllers, it has a specialized antenna for signaling airlocks"
 	icon = 'icons/obj/module.dmi'
 	icon_state = "doorcontrol_electronics"
 	w_class = WEIGHT_CLASS_SMALL
