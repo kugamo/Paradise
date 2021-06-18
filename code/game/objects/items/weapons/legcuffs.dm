@@ -117,7 +117,7 @@
 					H.legcuffed = src
 					forceMove(H)
 					H.update_inv_legcuffed()
-					feedback_add_details("handcuffs","B") //Yes, I know they're legcuffs. Don't change this, no need for an extra variable. The "B" is used to tell them apart.
+					SSblackbox.record_feedback("tally", "handcuffs", 1, type)
 
 			else
 				L.apply_damage(trap_damage, BRUTE)
@@ -129,6 +129,7 @@
 	icon_state = "e_snare"
 	trap_damage = 0
 	flags = DROPDEL
+	breakouttime = 6 SECONDS
 
 /obj/item/restraints/legcuffs/beartrap/energy/New()
 	..()
@@ -169,7 +170,7 @@
 		C.legcuffed = src
 		forceMove(C)
 		C.update_inv_legcuffed()
-		feedback_add_details("handcuffs","B")
+		SSblackbox.record_feedback("tally", "handcuffs", 1, type)
 		to_chat(C, "<span class='userdanger'>[src] ensnares you!</span>")
 		C.Weaken(weaken)
 		playsound(loc, hitsound, 50, TRUE)
@@ -192,7 +193,7 @@
 
 /obj/item/restraints/legcuffs/bola/energy/throw_impact(atom/hit_atom)
 	if(iscarbon(hit_atom))
-		var/obj/item/restraints/legcuffs/beartrap/B = new /obj/item/restraints/legcuffs/beartrap/energy/cyborg(get_turf(hit_atom))
+		var/obj/item/restraints/legcuffs/beartrap/B = new /obj/item/restraints/legcuffs/beartrap/energy(get_turf(hit_atom))
 		B.Crossed(hit_atom, null)
 		qdel(src)
 	..()

@@ -159,18 +159,12 @@
 	name = "Circuit board (Security Records)"
 	build_path = /obj/machinery/computer/secure_data
 	origin_tech = "programming=2;combat=2"
-/obj/item/circuitboard/skills
-	name = "Circuit board (Employment Records)"
-	build_path = /obj/machinery/computer/skills
 /obj/item/circuitboard/stationalert_engineering
 	name = "Circuit Board (Station Alert Console (Engineering))"
 	build_path = /obj/machinery/computer/station_alert
-/obj/item/circuitboard/stationalert_security
-	name = "Circuit Board (Station Alert Console (Security))"
+/obj/item/circuitboard/stationalert
+	name = "Circuit Board (Station Alert Console)"
 	build_path = /obj/machinery/computer/station_alert
-/obj/item/circuitboard/stationalert_all
-	name = "Circuit Board (Station Alert Console (All))"
-	build_path = /obj/machinery/computer/station_alert/all
 /obj/item/circuitboard/atmos_alert
 	name = "Circuit Board (Atmospheric Alert Computer)"
 	build_path = /obj/machinery/computer/atmos_alert
@@ -236,7 +230,10 @@
 /obj/item/circuitboard/brigcells
 	name = "Circuit board (Brig Cell Control)"
 	build_path = /obj/machinery/computer/brigcells
-
+/obj/item/circuitboard/sm_monitor
+	name = "Circuit board (Supermatter Monitoring Console)"
+	build_path = /obj/machinery/computer/sm_monitor
+	origin_tech = "programming=2;powerstorage=2"
 
 // RD console circuits, so that {de,re}constructing one of the special consoles doesn't ruin everything forever
 /obj/item/circuitboard/rdconsole
@@ -283,7 +280,7 @@
 	origin_tech = "programming=3;powerstorage=3"
 /obj/item/circuitboard/ordercomp
 	name = "Circuit board (Supply Ordering Console)"
-	build_path = /obj/machinery/computer/ordercomp
+	build_path = /obj/machinery/computer/supplycomp/public
 	origin_tech = "programming=3"
 /obj/item/circuitboard/supplycomp
 	name = "Circuit board (Supply Shuttle Console)"
@@ -480,11 +477,11 @@
 				return
 			if(istype(P, /obj/item/stack/cable_coil))
 				var/obj/item/stack/cable_coil/C = P
-				if(C.amount >= 5)
+				if(C.get_amount() >= 5)
 					playsound(loc, C.usesound, 50, 1)
 					to_chat(user, "<span class='notice'>You start to add cables to the frame.</span>")
 					if(do_after(user, 20 * C.toolspeed, target = src))
-						if(state == 2 && C.amount >= 5 && C.use(5))
+						if(state == 2 && C.get_amount() >= 5 && C.use(5))
 							to_chat(user, "<span class='notice'>You add cables to the frame.</span>")
 							state = 3
 							icon_state = "3"
@@ -505,11 +502,11 @@
 				return
 			if(istype(P, /obj/item/stack/sheet/glass))
 				var/obj/item/stack/sheet/glass/G = P
-				if(G.amount >= 2)
+				if(G.get_amount() >= 2)
 					playsound(loc, G.usesound, 50, 1)
 					to_chat(user, "<span class='notice'>You start to add the glass panel to the frame.</span>")
 					if(do_after(user, 20 * G.toolspeed, target = src))
-						if(state == 3 && G.amount >= 2 && G.use(2))
+						if(state == 3 && G.get_amount() >= 2 && G.use(2))
 							to_chat(user, "<span class='notice'>You put in the glass panel.</span>")
 							state = 4
 							icon_state = "4"
@@ -611,11 +608,11 @@
 				icon_state = "1"
 			if(istype(P, /obj/item/stack/cable_coil))
 				var/obj/item/stack/cable_coil/C = P
-				if(C.amount >= 5)
+				if(C.get_amount() >= 5)
 					playsound(loc, C.usesound, 50, 1)
 					to_chat(user, "<span class='notice'>You start to add cables to the frame.</span>")
 					if(do_after(user, 20 * C.toolspeed, target = src))
-						if(state == 2 && C.amount >= 5 && C.use(5))
+						if(state == 2 && C.get_amount() >= 5 && C.use(5))
 							to_chat(user, "<span class='notice'>You add cables to the frame.</span>")
 							state = 3
 							icon_state = "3"
@@ -636,11 +633,11 @@
 
 			if(istype(P, /obj/item/stack/sheet/glass))
 				var/obj/item/stack/sheet/glass/G = P
-				if(G.amount >= 2)
+				if(G.get_amount() >= 2)
 					playsound(loc, G.usesound, 50, 1)
 					to_chat(user, "<span class='notice'>You start to add the glass panel to the frame.</span>")
 					if(do_after(user, 20 * G.toolspeed, target = src))
-						if(state == 3 && G.amount >= 2 && G.use(2))
+						if(state == 3 && G.get_amount() >= 2 && G.use(2))
 							to_chat(user, "<span class='notice'>You put in the glass panel.</span>")
 							state = 4
 							icon_state = "4"

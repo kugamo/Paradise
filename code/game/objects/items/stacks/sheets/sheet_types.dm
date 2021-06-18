@@ -54,7 +54,6 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 	new /datum/stack_recipe/rods("metal rod", /obj/item/stack/rods, 1, 2, 50),
 	null,
 	new /datum/stack_recipe("computer frame", /obj/structure/computerframe, 5, time = 25, one_per_turf = 1, on_floor = 1),
-	new /datum/stack_recipe("modular console", /obj/machinery/modular_computer/console/buildable/, 10, time = 25, one_per_turf = 1, on_floor = 1),
 	new /datum/stack_recipe("wall girders", /obj/structure/girder, 2, time = 50, one_per_turf = 1, on_floor = 1),
 	new /datum/stack_recipe("machine frame", /obj/machinery/constructable_frame/machine_frame, 5, time = 25, one_per_turf = 1, on_floor = 1),
 	new /datum/stack_recipe("turret frame", /obj/machinery/porta_turret_construct, 5, time = 25, one_per_turf = 1, on_floor = 1),
@@ -117,20 +116,18 @@ GLOBAL_LIST_INIT(metal_recipes, list(
 	point_value = 2
 
 /obj/item/stack/sheet/metal/cyborg
+	energy_type = /datum/robot_energy_storage/metal
+	is_cyborg = TRUE
 	materials = list()
 
 /obj/item/stack/sheet/metal/fifty
 	amount = 50
 
-/obj/item/stack/sheet/metal/ratvar_act()
-	new /obj/item/stack/tile/brass(loc, amount)
-	qdel(src)
-
 /obj/item/stack/sheet/metal/narsie_act()
 	new /obj/item/stack/sheet/runed_metal(loc, amount)
 	qdel(src)
 
-/obj/item/stack/sheet/metal/New(var/loc, var/amount=null)
+/obj/item/stack/sheet/metal/New(loc, amount=null)
 	recipes = GLOB.metal_recipes
 	return ..()
 
@@ -165,9 +162,13 @@ GLOBAL_LIST_INIT(plasteel_recipes, list(
 	merge_type = /obj/item/stack/sheet/plasteel
 	point_value = 23
 
-/obj/item/stack/sheet/plasteel/New(var/loc, var/amount=null)
+/obj/item/stack/sheet/plasteel/New(loc, amount=null)
 	recipes = GLOB.plasteel_recipes
 	return ..()
+
+/obj/item/stack/sheet/wood/cyborg
+	energy_type = /datum/robot_energy_storage/wood
+	is_cyborg = TRUE
 
 /*
  * Wood
@@ -209,7 +210,7 @@ GLOBAL_LIST_INIT(wood_recipes, list(
 	armor = list("melee" = 0, "bullet" = 0, "laser" = 0, "energy" = 0, "bomb" = 0, "bio" = 0, "rad" = 0, "fire" = 50, "acid" = 0)
 	merge_type = /obj/item/stack/sheet/wood
 
-/obj/item/stack/sheet/wood/New(var/loc, var/amount=null)
+/obj/item/stack/sheet/wood/New(loc, amount=null)
 	recipes = GLOB.wood_recipes
 	return ..()
 
@@ -229,6 +230,7 @@ GLOBAL_LIST_INIT(cloth_recipes, list ( \
 	new/datum/stack_recipe("mining satchel", /obj/item/storage/bag/ore, 4), \
 	new/datum/stack_recipe("chemistry bag", /obj/item/storage/bag/chemistry, 4), \
 	new/datum/stack_recipe("bio bag", /obj/item/storage/bag/bio, 4), \
+	new/datum/stack_recipe("fish bag", /obj/item/storage/bag/fish, 4), \
 	null, \
 	new/datum/stack_recipe("improvised gauze", /obj/item/stack/medical/bruise_pack/improvised, 1, 2, 6), \
 	new/datum/stack_recipe("rag", /obj/item/reagent_containers/glass/rag, 1), \
@@ -253,6 +255,8 @@ GLOBAL_LIST_INIT(cloth_recipes, list ( \
 	force = 0
 	throwforce = 0
 	merge_type = /obj/item/stack/sheet/cloth
+	drop_sound = 'sound/items/handling/cloth_drop.ogg'
+	pickup_sound =  'sound/items/handling/cloth_pickup.ogg'
 
 /obj/item/stack/sheet/cloth/New(loc, amount=null)
 	recipes = GLOB.cloth_recipes
@@ -278,6 +282,8 @@ GLOBAL_LIST_INIT(durathread_recipes, list ( \
 	force = 0
 	throwforce = 0
 	merge_type = /obj/item/stack/sheet/durathread
+	drop_sound = 'sound/items/handling/cloth_drop.ogg'
+	pickup_sound =  'sound/items/handling/cloth_pickup.ogg'
 
 /obj/item/stack/sheet/durathread/Initialize(mapload, new_amount, merge = TRUE)
 	recipes = GLOB.durathread_recipes
@@ -317,10 +323,11 @@ GLOBAL_LIST_INIT(cardboard_recipes, list (
 	new /datum/stack_recipe("cardborg suit", /obj/item/clothing/suit/cardborg, 3),
 	new /datum/stack_recipe("cardborg helmet", /obj/item/clothing/head/cardborg),
 	new /datum/stack_recipe("pizza box", /obj/item/pizzabox),
+	new /datum/stack_recipe("donut box", /obj/item/storage/fancy/donut_box/empty, 1),
 	new /datum/stack_recipe("folder", /obj/item/folder),
 	new /datum/stack_recipe("cardboard tube", /obj/item/c_tube),
 	new /datum/stack_recipe("cardboard box", /obj/structure/closet/cardboard, 4),
-	new/datum/stack_recipe("cardboard cutout", /obj/item/cardboard_cutout, 5),
+	new /datum/stack_recipe("cardboard cutout", /obj/item/cardboard_cutout, 5)
 ))
 
 /obj/item/stack/sheet/cardboard/attackby(obj/item/I, mob/user, params)
@@ -342,7 +349,7 @@ GLOBAL_LIST_INIT(cardboard_recipes, list (
 	resistance_flags = FLAMMABLE
 	merge_type = /obj/item/stack/sheet/cardboard
 
-/obj/item/stack/sheet/cardboard/New(var/loc, var/amt = null)
+/obj/item/stack/sheet/cardboard/New(loc, amt = null)
 	recipes = GLOB.cardboard_recipes
 	return ..()
 
@@ -351,12 +358,12 @@ GLOBAL_LIST_INIT(cardboard_recipes, list (
  */
 
 GLOBAL_LIST_INIT(cult_recipes, list ( \
-	new/datum/stack_recipe/cult("runed door", /obj/machinery/door/airlock/cult, 1, time = 50, one_per_turf = 1, on_floor = 1),
-	new/datum/stack_recipe/cult("runed girder", /obj/structure/girder/cult, 1, time = 50, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe/cult("pylon", /obj/structure/cult/functional/pylon, 3, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe/cult("forge", /obj/structure/cult/functional/forge, 5, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe/cult("archives", /obj/structure/cult/functional/archives, 2, time = 40, one_per_turf = 1, on_floor = 1), \
-	new/datum/stack_recipe/cult("altar", /obj/structure/cult/functional/altar, 5, time = 40, one_per_turf = 1, on_floor = 1), \
+	new /datum/stack_recipe/cult("runed door (stuns non-cultists)", /obj/machinery/door/airlock/cult, 1, time = 50, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE),
+	new /datum/stack_recipe/cult("runed girder (used to make cult walls)", /obj/structure/girder/cult, 1, time = 10, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE), \
+	new /datum/stack_recipe/cult("pylon (heals nearby cultists)", /obj/structure/cult/functional/pylon, 4, time = 40, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE), \
+	new /datum/stack_recipe/cult("forge (crafts shielded robes, flagellant's robes, and mirror shields)", /obj/structure/cult/functional/forge, 3, time = 40, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE), \
+	new /datum/stack_recipe/cult("archives (crafts zealot's blindfolds, shuttle curse orbs, and veil shifters)", /obj/structure/cult/functional/archives, 3, time = 40, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE), \
+	new /datum/stack_recipe/cult("altar (crafts eldritch whetstones, construct shells, and flasks of unholy water)", /obj/structure/cult/functional/altar, 3, time = 40, one_per_turf = TRUE, on_floor = TRUE, no_cult_structure = TRUE),
 	))
 
 /obj/item/stack/sheet/runed_metal
@@ -367,14 +374,11 @@ GLOBAL_LIST_INIT(cult_recipes, list ( \
 	item_state = "sheet-metal"
 	sheettype = "runed"
 	merge_type = /obj/item/stack/sheet/runed_metal
+	recipe_width = 700
 
 /obj/item/stack/sheet/runed_metal/New()
 	. = ..()
 	icon_state = SSticker.cultdat?.runed_metal_icon_state
-
-/obj/item/stack/sheet/runed_metal/ratvar_act()
-	new /obj/item/stack/tile/brass(loc, amount)
-	qdel(src)
 
 /obj/item/stack/sheet/runed_metal/attack_self(mob/living/user)
 	if(!iscultist(user))
@@ -387,8 +391,8 @@ GLOBAL_LIST_INIT(cult_recipes, list ( \
 	return ..()
 
 /datum/stack_recipe/cult
-   one_per_turf = 1
-   on_floor = 1
+   one_per_turf = TRUE
+   on_floor = TRUE
 
 /datum/stack_recipe/cult/post_build(obj/item/stack/S, obj/result)
    if(ishuman(S.loc))
@@ -396,10 +400,13 @@ GLOBAL_LIST_INIT(cult_recipes, list ( \
       H.bleed(5)
    ..()
 
+/obj/item/stack/sheet/runed_metal/ten
+	amount = 10
+
 /obj/item/stack/sheet/runed_metal/fifty
 	amount = 50
 
-/obj/item/stack/sheet/runed_metal/New(var/loc, var/amount=null)
+/obj/item/stack/sheet/runed_metal/New(loc, amount=null)
 	recipes = GLOB.cult_recipes
 	return ..()
 

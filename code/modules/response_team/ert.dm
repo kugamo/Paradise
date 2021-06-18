@@ -33,7 +33,7 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 		to_chat(usr, "<span class='warning'>Central Command has already dispatched an emergency response team!</span>")
 		return
 
-	var/datum/nano_module/ert_manager/E = new()
+	var/datum/ui_module/ert_manager/E = new()
 	E.ui_interact(usr)
 
 
@@ -177,6 +177,7 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 	M.mind.original = M
 	M.mind.assigned_role = SPECIAL_ROLE_ERT
 	M.mind.special_role = SPECIAL_ROLE_ERT
+	M.mind.offstation_role = TRUE
 	if(!(M.mind in SSticker.minds))
 		SSticker.minds += M.mind //Adds them to regular mind list.
 	SSticker.mode.ert += M.mind
@@ -209,7 +210,7 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 	var/paranormal_outfit
 	var/borg_path = /mob/living/silicon/robot/ert
 
-/datum/response_team/proc/setSlots(com=1, sec=3, med=3, eng=3, jan=0, par=0, cyb=0)
+/datum/response_team/proc/setSlots(com=1, sec=4, med=0, eng=0, jan=0, par=0, cyb=0)
 	slots["Commander"] = com
 	slots["Security"] = sec
 	slots["Medic"] = med
@@ -233,7 +234,7 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 /datum/response_team/proc/check_slot_available(role)
 	return slots[role]
 
-/datum/response_team/proc/equip_officer(var/officer_type, var/mob/living/carbon/human/M)
+/datum/response_team/proc/equip_officer(officer_type, mob/living/carbon/human/M)
 	switch(officer_type)
 		if("Engineer")
 			M.equipOutfit(engineering_outfit)
@@ -311,6 +312,7 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 	id = /obj/item/card/id/ert
 	l_ear = /obj/item/radio/headset/ert/alt
 	box = /obj/item/storage/box/responseteam
+	gloves = /obj/item/clothing/gloves/combat
 
 	implants = list(/obj/item/implant/mindshield)
 
@@ -318,3 +320,4 @@ GLOBAL_VAR_INIT(ert_request_answered, FALSE)
 	name = "centcomm bounced radio"
 	frequency = ERT_FREQ
 	icon_state = "radio"
+	freqlock = TRUE

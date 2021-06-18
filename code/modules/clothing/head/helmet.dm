@@ -162,7 +162,7 @@
 	icon_state = "roman"
 	item_state = "roman"
 	strip_delay = 100
-	dog_fashion = null
+	dog_fashion = /datum/dog_fashion/head/roman
 
 /obj/item/clothing/head/helmet/roman/fake
 	desc = "An ancient helmet made of plastic and leather."
@@ -193,7 +193,7 @@
 	toggle_sound = 'sound/items/zippoclose.ogg'
 	dog_fashion = null
 
-obj/item/clothing/head/helmet/redtaghelm
+/obj/item/clothing/head/helmet/redtaghelm
 	name = "red laser tag helmet"
 	desc = "They have chosen their own end."
 	icon_state = "redtaghelm"
@@ -204,7 +204,7 @@ obj/item/clothing/head/helmet/redtaghelm
 	flags_inv = HIDEEARS|HIDEEYES
 	dog_fashion = null
 
-obj/item/clothing/head/helmet/bluetaghelm
+/obj/item/clothing/head/helmet/bluetaghelm
 	name = "blue laser tag helmet"
 	desc = "They'll need more men."
 	icon_state = "bluetaghelm"
@@ -215,7 +215,7 @@ obj/item/clothing/head/helmet/bluetaghelm
 	flags_inv = HIDEEARS|HIDEEYES
 	dog_fashion = null
 
-obj/item/clothing/head/blob
+/obj/item/clothing/head/blob
 	name = "blob hat"
 	desc = "A collectible hat handed out at the latest Blob Family Reunion."
 	icon_state = "blobhat"

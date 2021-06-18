@@ -35,10 +35,19 @@
 	QDEL_NULL(showpiece)
 	return ..()
 
+/obj/structure/displaycase/emag_act(mob/user)
+	if(!emagged)
+		to_chat(user, "<span class='warning'>You override the ID lock on [src].</span>")
+		trigger_alarm()
+
+		emagged = TRUE
+
 /obj/structure/displaycase/examine(mob/user)
 	. = ..()
 	if(alert)
 		. += "<span class='notice'>Hooked up with an anti-theft system.</span>"
+	if(emagged)
+		. += "<span class='warning'>The ID lock has been shorted out.</span>"
 	if(showpiece)
 		. += "<span class='notice'>There's [showpiece] inside.</span>"
 	if(trophy_message)
@@ -100,7 +109,7 @@
 
 /obj/structure/displaycase/attackby(obj/item/I, mob/user, params)
 	if(I.GetID() && !broken && openable)
-		if(allowed(user))
+		if(allowed(user) || emagged)
 			to_chat(user,  "<span class='notice'>You [open ? "close":"open"] [src].</span>")
 			toggle_lock(user)
 		else
@@ -144,7 +153,7 @@
 		to_chat(user,  "<span class='notice'>You [open ? "close":"open"] [src].</span>")
 		toggle_lock(user)
 
-obj/structure/displaycase/welder_act(mob/user, obj/item/I)
+/obj/structure/displaycase/welder_act(mob/user, obj/item/I)
 	. = TRUE
 	if(default_welder_repair(user, I))
 		broken = FALSE
@@ -201,9 +210,9 @@ obj/structure/displaycase/welder_act(mob/user, obj/item/I)
 				electronics.forceMove(display)
 				display.electronics = electronics
 				if(electronics.one_access)
-					display.req_one_access = electronics.conf_access
+					display.req_one_access = electronics.selected_accesses
 				else
-					display.req_access = electronics.conf_access
+					display.req_access = electronics.selected_accesses
 			qdel(src)
 	else
 		return ..()
